@@ -1,7 +1,7 @@
 (ns five-k-api.member-test
   (:require [five-k-api.member :as m]
             [clojure.java.jdbc :as jdbc]
-            [clojure.test :as t]))
+            [clojure.test :refer :all]))
 
 (def db
   {:dbtype "postgresql"
@@ -14,42 +14,42 @@
   [s]
   (clojure.string/replace s #"-" "_"))
 
-(defn create-members-table
-  []
+(defn create-table
+  [columns-def table-name]
   (jdbc/create-table-ddl
-   (name :members)
-   [[:id :serial "primary key"]
-    [:first-name :text]]
+   (name table-name)
+   columns-def
    {:entities ->psql-name}))
 
-(defn create-projects-table
-  []
-  (jdbc/create-table-ddl
-   (name :projects)
-   [[:id :serial "primary key"]
-    [:name :text]
-    [:member-id :integer (str "references " (name :members) " (id)")]]
-   {:entities ->psql-name}))
+(def projects-columns
+  [[:id :serial "primary key"]
+   [:name :text]
+   [:member-id :integer (str "references " (name :members) " (id)")]])
 
 (def db-spec
-  {:members create-members-table
-   :projects create-projects-table})
+  {:members {:columns [[:id :serial "primary key"]
+                       [:first-name :text]]
+             :order 1}
+   :projects {:columns projects-columns
+              :order 2}})
 
 (defn run-ddls!
   [db ddls]
   (doseq [q ddls]
     (jdbc/execute! db q)))
 
-(defn run-fn
-  [f]
-  (f))
+(defn ->ddl
+  [spec]
+  (let [tbl-name (first spec)
+        config (second spec)
+        cs-def (:columns config)]
+    (create-table cs-def tbl-name)))
 
 (defn create-sceheme!
   [db]
   (->>
    db-spec
-   vals
-   (map run-fn)
+   (map ->ddl)
    (run-ddls! db)))
 
 (defn drop-scheme!
@@ -59,6 +59,11 @@
    keys
    reverse
    (map jdbc/drop-table-ddl)
-   (run-ddls! db)
-   ))
+   (run-ddls! db)))
 
+(deftest migrate-cycle
+  (testing "create and drop schema"
+    (do
+      (create-sceheme! db)
+      (drop-scheme! db))
+    (is true)))
