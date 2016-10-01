@@ -38,6 +38,7 @@
   (doseq [q ddls]
     (jdbc/execute! db q)))
 
+;; deprecated
 (defn ->ddl
   [[tbl-name {:keys [columns]}]]
   (create-table tbl-name columns))
@@ -47,7 +48,8 @@
   (->>
    db-spec
    (sort-by #(-> % second :order))
-   (map ->ddl)
+   (map (fn [[n c]] [n (:columns c)]))
+   (map (partial apply create-table))
    (run-ddls! db)))
 
 (defn drop-scheme!
