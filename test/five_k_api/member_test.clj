@@ -15,7 +15,7 @@
   (clojure.string/replace s #"-" "_"))
 
 (defn create-table
-  [columns-def table-name]
+  [table-name columns-def]
   (jdbc/create-table-ddl
    (name table-name)
    columns-def
@@ -39,16 +39,14 @@
     (jdbc/execute! db q)))
 
 (defn ->ddl
-  [spec]
-  (let [tbl-name (first spec)
-        config (second spec)
-        cs-def (:columns config)]
-    (create-table cs-def tbl-name)))
+  [[tbl-name {:keys [columns]}]]
+  (create-table tbl-name columns))
 
 (defn create-sceheme!
   [db]
   (->>
    db-spec
+   (sort-by #(-> % second :order))
    (map ->ddl)
    (run-ddls! db)))
 
