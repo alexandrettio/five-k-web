@@ -1,0 +1,17 @@
+version: '2'
+services:
+  ft-db:
+    image: postgres:9.5.4
+    environment:
+      - POSTGRES_PASSWORD=ft
+      - POSTGRES_USER=ft
+      - POSTGRES_DB=ft
+    ports:
+      - "5432:5432"
+  postgres.client.ft-db.dev:
+    image: postgres:9.5.4
+    command: psql -h ft-db -d ft -U ft
+    environment:
+      - PGPASSWORD=ft
+    depends_on:
+      - ft-db

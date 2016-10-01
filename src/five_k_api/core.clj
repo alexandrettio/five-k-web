@@ -1,5 +1,6 @@
 (ns five-k-api.core
-  (:require [clj-time.core :as t])
+  (:require [clj-time.core :as t]
+            )
   (:gen-class))
 
 (defn -main
@@ -31,6 +32,10 @@
         new-bet (merge bet {:id new-id})]
     (swap! db assoc new-id new-bet)))
 
+(defn db-values
+  [db]
+  (map (fn [[_ value]] value) db))
+
 (defn exists-bet
   [db id]
   (->> db
@@ -44,12 +49,12 @@
   (when (exists-bet @db id)
     (swap! db update id assoc :state :published)))
 
-(defn db-values
-  [db]
-  (map (fn [[_ value]] value) db))
-
 (defn list-published-bets
   [db]
   (->> db
        db-values
        (filter #(-> % :state (= :published)))))
+
+(defn f
+  [x]
+  (+ 1 2))
