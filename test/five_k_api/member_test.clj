@@ -54,6 +54,7 @@
   [db]
   (->>
    db-spec
+   (sort-by #(-> % second :order))
    keys
    reverse
    (map jdbc/drop-table-ddl)
