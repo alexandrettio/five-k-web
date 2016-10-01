@@ -43,7 +43,7 @@
   [[tbl-name {:keys [columns]}]]
   (create-table tbl-name columns))
 
-(defn create-sceheme!
+(defn create-scheme!
   [db]
   (->>
    db-spec
@@ -59,12 +59,23 @@
    (sort-by #(-> % second :order))
    keys
    reverse
-   (map jdbc/drop-table-ddl)
+   (map name)
+   (map ->psql-name)
+   (map (partial format "DROP TABLE IF EXISTS %s "))
    (run-ddls! db)))
 
-(deftest migrate-cycle
-  (testing "create and drop schema"
+(defn with-reset-db
+  [db]
+  (fn [f]
+    (drop-scheme! db)
+    (create-scheme! db)
+    (f)))
+
+(use-fixtures :each
+  (with-reset-db db))
+
+(deftest members
+  (testing "insert"
     (do
-      (create-sceheme! db)
-      (drop-scheme! db))
+      (jdbc/insert! db (name :members) {:first-name "test"} {:entities ->psql-name}))
     (is true)))
