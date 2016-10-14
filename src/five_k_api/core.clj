@@ -1,6 +1,5 @@
 (ns five-k-api.core
-  (:require [clj-time.core :as t]
-            )
+  (:require [clj-time.core :as t])
   (:gen-class))
 
 (defn -main
@@ -55,6 +54,8 @@
        db-values
        (filter #(-> % :state (= :published)))))
 
-(defn f
-  [x]
-  (+ 1 2))
+(defn gen-id!
+  []
+  (let [counter 0]
+    (fn []
+      (swap! counter inc))))

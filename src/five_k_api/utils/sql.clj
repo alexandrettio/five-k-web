@@ -1,14 +1,20 @@
-(ns five-k-api.sql-utils
-  (:require [clojure.java.jdbc :as jdbc]
-            [clojure.string :as s]))
+(ns five-k-api.utils.sql
+  (:require [jdbc.core :as jdbc]
+            [clojure.string :as s]
+            [five-k-api.utils.ddl :as su]
+            [honeysql.core :as hsql]))
 
 (defn ->psql-name
   [s]
   (s/replace s #"-" "_"))
 
+(defn <-psql-name
+  [s]
+  (s/replace s #"_" "-"))
+
 (defn create-table-sql
   [table-name columns-def]
-  (jdbc/create-table-ddl
+  (su/create-table-ddl
    (name table-name)
    columns-def
    {:entities ->psql-name}))
@@ -16,7 +22,7 @@
 (defn run-ddls!
   [db ddls]
   (doseq [q ddls]
-    (jdbc/execute! db q)))
+    (jdbc/execute db q)))
 
 (defn create-scheme!
   [db db-spec]
@@ -42,3 +48,19 @@
    (map (partial format "DROP TABLE IF EXISTS %s "))
    (run-ddls! db)))
 
+(defn insert-sql
+  [spec]
+  (-> (hsql/format spec)
+      (update-in [0] str " returning id;")))
+
+(defn fetch
+  ([db q]
+   (fetch db q {}))
+  ([db q opts]
+   (jdbc/fetch db q (merge opts {:identifiers <-psql-name}))))
+
+(defn fetch-one
+  ([db q]
+   (fetch-one db q {}))
+  ([db q opts]
+   (jdbc/fetch-one db q (merge opts {:identifiers <-psql-name}))))

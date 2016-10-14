@@ -1,6 +1,5 @@
 (ns five-k-api.member
-  (:require [clojure.java.jdbc :as jdbc]
-            [honeysql.core :as sql]))
+  (:require [honeysql.core :as sql]))
 
 ;; table key -- :members
 

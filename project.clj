@@ -5,7 +5,8 @@
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [clj-time "0.12.0"]
-                 [org.clojure/java.jdbc "0.6.2-alpha3"]
+                 [mount "0.1.10"]
+                 [funcool/clojure.jdbc "0.9.0"]
                  [org.postgresql/postgresql "9.4.1211"]
                  [honeysql "0.8.1"]]
   :main ^:skip-aot five-k-api.core

@@ -1,14 +1,21 @@
 (ns five-k-api.sql
-  (:require [five-k-api.member :as m]))
+  (:require [five-k-api.member :as m]
+            [jdbc.core :as jdbc]
+            [mount.core :refer [defstate]]))
 
 ;; conn
 
-(def db
-  {:dbtype "postgresql"
-   :dbname "ft"
+(def conn-spec
+  {:vendor "postgresql"
+   :name "ft"
+   :port 5432
    :host "localhost"
    :user "ft"
    :password "ft"})
+
+(defstate db
+  :start (jdbc/connection conn-spec)
+  :stop (.close db))
 
 ;; spec
 
