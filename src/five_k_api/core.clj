@@ -56,6 +56,6 @@
 
 (defn gen-id!
   []
-  (let [counter 0]
+  (let [counter (atom 0)]
     (fn []
       (swap! counter inc))))
