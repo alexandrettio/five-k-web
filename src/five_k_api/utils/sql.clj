@@ -53,6 +53,12 @@
   (-> (hsql/format spec)
       (update-in [0] str " returning id;")))
 
+(defn select-sql
+  [projection target condition]
+  (hsql/format {:select projection
+                 :from target
+                 :where condition}))
+
 (defn fetch
   ([db q]
    (fetch db q {}))
@@ -69,6 +75,17 @@
   [db username]
   (->>
     {:insert-into :members
-     :values [{:id (five-k-api.core/member-id) :first-name username}]}
+     :values [{:first-name username}]}
     insert-sql
+    (fetch-one db)))
+
+(defn get-users-byname
+  [db username]
+  (->>
+    (select-sql [:*] [:members] [:= :first-name username])
+    (fetch db)))
+(defn get-user-byid
+  [db id]
+  (->>
+    (select-sql [:*] [:members] [:= :id id])
     (fetch-one db)))

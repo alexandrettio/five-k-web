@@ -15,13 +15,7 @@
 (deftest members
   (testing "insert"
     (let [fname "vasy"
-          id ((su/create-user db fname)
-              :id)
-          mem (->>
-               {:select [:*]
-                :from [:members]
-                :where [:= :id id]}
-               hsql/format
-               (su/fetch-one db))]
+          id ((su/create-user db fname) :id)
+          mem (su/get-user-byid db id)]
       (is (= 1 id))
       (is (= {:id 1 :first-name fname} mem)))))
