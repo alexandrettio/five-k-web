@@ -64,3 +64,11 @@
    (fetch-one db q {}))
   ([db q opts]
    (jdbc/fetch-one db q (merge opts {:identifiers <-psql-name}))))
+
+(defn create-user
+  [db username]
+  (->>
+    {:insert-into :members
+     :values [{:id (five-k-api.core/member-id) :first-name username}]}
+    insert-sql
+    (fetch-one db)))

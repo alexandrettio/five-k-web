@@ -59,3 +59,5 @@
   (let [counter (atom 0)]
     (fn []
       (swap! counter inc))))
+
+(def member-id (gen-id!))
