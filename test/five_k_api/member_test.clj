@@ -15,11 +15,7 @@
 (deftest members
   (testing "insert"
     (let [fname "vasy"
-          id (->>
-              {:insert-into :members
-               :values [{:first-name fname}]}
-              su/insert-sql
-              (jdbc/fetch-one db)
+          id ((su/create-user db fname)
               :id)
           mem (->>
                {:select [:*]
